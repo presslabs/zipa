@@ -19,7 +19,16 @@ class SelfWrapper(ModuleType):
     def __getattr__(self, name):
         if name == "env":
              raise AttributeError
+        url, prefix = self._parse_name(name)
         return self.env[name]
+
+    def _parse_name(self, name):
+        raw_prefix = name.split('__')[1:]
+        prefix = "/%s" % "/".join(raw_prefix)
+
+        name = name.replace("__%s" % '__'.join(raw_prefix), "")
+        url = ".".join(name.split('_'))
+        return url, prefix
 
 
 if __name__ != "__main__":
