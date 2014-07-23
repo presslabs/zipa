@@ -1,4 +1,2 @@
-stalin
-======
-
-A communist API cruncher  
+papi
+====
