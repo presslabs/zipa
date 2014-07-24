@@ -3,7 +3,6 @@ from types import ModuleType
 from copy import deepcopy
 import requests
 import json
-import auth
 
 
 def dict_merge(a, b):
@@ -81,7 +80,7 @@ class Resource(dict):
             return self._get_url()
         elif name in self.__dict__:
             return self.__dict__[name]
-        return Resource('%s%s/' % (self._url, name), name, config=self.config)
+        return Resource('%s%s' % (self._url, name), name, config=self.config)
 
     def __getitem__(self, name):
         if isinstance(name, dict):
