@@ -1,36 +1,19 @@
 import sys
 from types import ModuleType
-from copy import deepcopy
 import requests
 import json
 
-
-def dict_merge(a, b):
-    '''recursively merges dict's. not just simple a['key'] = b['key'], if
-    both a and bhave a key who's value is a dict then dict_merge is called
-    on both values and the result stored in the returned dictionary.'''
-    if not isinstance(b, dict):
-        return b
-    result = deepcopy(a)
-    for k, v in b.iteritems():
-        if k in result and isinstance(result[k], dict):
-                result[k] = dict_merge(result[k], v)
-        else:
-            result[k] = deepcopy(v)
-    return result
+from .utils import dict_merge
 
 
 class Model(dict):
     def __init__(self, *args, **kwargs):
         for arg in args:
             if isinstance(arg, dict):
-                for key in arg:
-                    self[key] = arg[key]
+                self.update(arg)
             else:
                 raise TypeError('Argument %s is not an dict' % arg)
-
-        for key in kwargs:
-            self[key] = kwargs[key]
+        self.update(kwargs)
 
         self.__dict__ = self
 
@@ -46,6 +29,7 @@ class Resource(dict):
         self._url = url or '/'
         self.name = name
         self.params = params or {}
+
         _config = config or {}
         _config_defaults = {
             'auth': None,
