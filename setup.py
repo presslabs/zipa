@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='zipa',
-      version='1.00',
+      version='0.1.0',
       platforms='any',
       description='General purpose REST API client',
       author='Vlad Temian & Calin Don',
