@@ -32,7 +32,7 @@ class Model(dict):
 
 class Resource(dict):
     def __init__(self, url=None, name=None, params=None, config=None):
-        self._url = url or '/'
+        self._url = url or ''
         self.name = name
         self.params = params or {}
 
@@ -52,7 +52,8 @@ class Resource(dict):
         scheme = 'https://' if self.config.secure else 'http://'
 
         url = scheme + self.config.host + self.config.prefix
-        url += self._url.replace('_/', '/')[:-1]
+        url += self._url.replace('_/', '/')
+        url = url.rstrip("/")
 
         if self.config.use_extensions:
             url += '.json'
@@ -85,7 +86,7 @@ class Resource(dict):
             return self._get_url()
         elif name in self.__dict__:
             return self.__dict__[name]
-        return Resource('%s%s' % (self._url, name), name, config=self.config)
+        return Resource('%s/%s' % (self._url, name), name, config=self.config)
 
     def __getitem__(self, name):
         if isinstance(name, dict):
@@ -107,9 +108,13 @@ class Resource(dict):
     def __call__(self, **kwargs):
         if self.name is None:
             raise RuntimeError('Cannot call directly on root')
-        r = requests.get(self.url, params=kwargs,
-                         auth=self.config['auth'])
-        return r.json()
+        response = requests.get(self.url, params=kwargs,
+                                auth=self.config['auth'])
+        content = response.json()
+        if isinstance(content, list):
+            return [Model(item) for item in content]
+
+        return Model(content)
 
     def __str__(self):
         return repr(self)
@@ -155,9 +160,9 @@ class SelfWrapper(ModuleType):
     def _parse_name(self, name):
         parts = name.split('__')
         host = parts[0].replace('_', '.')
-        prefix = '/'
+        prefix = ''
         if len(parts) > 1:
-            prefix = parts[1].replace('_', '/')
+            prefix = parts[1].replace('_', '/') + '/'
         return host, prefix
 
 
