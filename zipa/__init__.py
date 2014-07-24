@@ -43,7 +43,7 @@ class Model(dict):
 
 class Resource(dict):
     def __init__(self, url=None, name=None, params=None, config=None):
-        self._url = url or '/'
+        self._url = url or ''
         self.name = name
         self.params = params or {}
         _config = config or {}
@@ -59,7 +59,7 @@ class Resource(dict):
 
     def _get_url(self):
         scheme = 'https://' if self.config.secure else 'http://'
-        url = scheme + self.config.host + self.config.prefix
+        url = scheme + self.config.host + '/' + self.config.prefix
         url += self._url.replace('_/', '/')[:-1]
         if self.config.use_extensions:
             url += '.json'
@@ -164,9 +164,9 @@ class SelfWrapper(ModuleType):
     def _parse_name(self, name):
         parts = name.split('__')
         host = parts[0].replace('_', '.')
-        prefix = '/'
+        prefix = ''
         if len(parts) > 1:
-            prefix = parts[1].replace('_', '/')
+            prefix = parts[1].replace('_', '/') + '/'
         return host, prefix
 
 
