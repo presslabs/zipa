@@ -52,26 +52,40 @@ class Resource(dict):
             'auth': None,
             'use_extensions': False,
             'secure': True,
-            'prefix': ''
+            'prefix': '',
+            'serializer': 'json'
         }
         config = dict_merge(_config_defaults, _config)
         self.config = Model(config)
 
     def _get_url(self):
         scheme = 'https://' if self.config.secure else 'http://'
-        url = scheme + self.config.host + self.config.prefix + self._url[:-1]
+        url = scheme + self.config.host + self.config.prefix
+        url += self._url.replace('_/', '/')[:-1]
         if self.config.use_extensions:
             url += '.json'
         return url
 
+    def _prepare_data(self, **kwargs):
+        if self.config.serializer == 'json':
+            data = json.dumps(kwargs)
+        else:
+            data = kwargs
+        return data
+
     def create(self, **kwargs):
-        r = requests.post(self.url, data=json.dumps(kwargs),
+        data = self._prepare_data(**kwargs)
+        r = requests.post(self.url, data=data,
                           auth=self.config['auth'])
         m = Model(r.json())
         return m
 
     def update(self, **kwargs):
-        self.create(**kwargs)
+        data = self._prepare_data(**kwargs)
+        r = requests.put(self.url, data=data,
+                         auth=self.config['auth'])
+        m = Model(r.json())
+        return m
 
     def delete(self):
         print 'DELETE', self.url
