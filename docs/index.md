@@ -17,7 +17,7 @@ python
 >>> gh.orgs.django.repos()
 ```
 
-Under the hood `zipa` transforms your imports into clients. If follows a simple
+Under the hood `zipa` transforms your imports into clients. It follows a simple
 convention: `HOSTNAME__PREFIX`. For the hostname, single underscores are
 translated into dots and for the prefix into slashes.
 
