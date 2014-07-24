@@ -63,6 +63,9 @@ class Resource(dict):
             return self._get_url()
         elif name in self.__dict__:
             return self.__dict__[name]
+        # Handle special attributes used with ipdb/ipython tab completion.
+        elif name in ['_getAttributeNames', 'trait_names']:
+            return super(Resource, self).__getattribute__(name)
         return Resource('%s/%s' % (self._url, name), name, config=self.config)
 
     def __getitem__(self, name):
