@@ -2,6 +2,10 @@ zipa [![Build Status](https://travis-ci.org/vtemian/zipa.svg?branch=master)](htt
 ====
 General purpose REST API client ([docs](http://vtemian.github.io/zipa/))
 
+### Instalation
+``` pip install zipa ```
+
+### Examples
 
 ```
 >>> from zipa import api_github_com as gh
