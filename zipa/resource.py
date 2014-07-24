@@ -54,8 +54,9 @@ class Resource(dict):
                                 auth=self.config['auth'])
         return Entity(response.json())
 
-    def delete(self):
-        print 'DELETE', self.url
+    def delete(self, **kwa):
+        response = requests.delete(self.url, params=kwargs,
+                                   auth=self.config['auth'])
 
     def __getattr__(self, name):
         if name == 'url':
