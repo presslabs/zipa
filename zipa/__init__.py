@@ -3,7 +3,6 @@ from types import ModuleType
 from copy import deepcopy
 import requests
 import json
-import auth
 
 
 def dict_merge(a, b):
