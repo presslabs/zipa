@@ -17,6 +17,12 @@ class Model(dict):
 
         self.__dict__ = self
 
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            return super(Model, self).__getattr__(name)
+
     def __setattr__(self, name, value):
         if isinstance(value, dict) and name[0:2] != '__':
             self.__dict__[name] = Model(value)
@@ -38,37 +44,38 @@ class Resource(dict):
             'prefix': '',
             'serializer': 'json'
         }
+
         config = dict_merge(_config_defaults, _config)
         self.config = Model(config)
 
     def _get_url(self):
         scheme = 'https://' if self.config.secure else 'http://'
+
         url = scheme + self.config.host + self.config.prefix
         url += self._url.replace('_/', '/')[:-1]
+
         if self.config.use_extensions:
             url += '.json'
+
         return url
 
     def _prepare_data(self, **kwargs):
         if self.config.serializer == 'json':
-            data = json.dumps(kwargs)
+            return json.dumps(kwargs)
         else:
-            data = kwargs
-        return data
+            return kwargs
 
     def create(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        r = requests.post(self.url, data=data,
-                          auth=self.config['auth'])
-        m = Model(r.json())
-        return m
+        response = requests.post(self.url, data=data,
+                                 auth=self.config['auth'])
+        return Model(response.json())
 
     def update(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        r = requests.put(self.url, data=data,
-                         auth=self.config['auth'])
-        m = Model(r.json())
-        return m
+        response = requests.put(self.url, data=data,
+                                auth=self.config['auth'])
+        return Model(response.json())
 
     def delete(self):
         print 'DELETE', self.url
