@@ -12,12 +12,12 @@ gh.orgs['django'].repos['django']   # /orgs/django/repos/django
 
 #### Calls to the remote are only made when you actually make a call from python
 
-The following statemens don't make a remote call
+The following statements do not make a remote call
 ```
 repos = gh.orgs['django'].repos
 print gh.orgs.django
 ```
-While these ones do
+While these ones do:
 ```
 repos = gh.orgs['django'].repos
 # this calls GET /orgs/django/repos
@@ -34,7 +34,7 @@ for repo in gh.orgs.django.repos:
 
 #### Filtering
 
-You can add filters to iteration by using the slice notation like this:
+You can add filters to iterators by using the slice notation like this:
 ```
 # This one calls GET /orgs/django/repos?sort=created&direction=desc
 for repo in gh.orgs.django.repos[{'sort': 'created', 'direction': 'desc'}]:
