@@ -55,7 +55,8 @@ class Resource(dict):
         return Entity(response.json())
 
     def delete(self):
-        print 'DELETE', self.url
+        # TODO
+        print('DELETE', self.url)
 
     def __getattr__(self, name):
         if name == 'url':

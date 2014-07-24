@@ -4,4 +4,4 @@ from zipa import api_github_com as github
 
 repos = github.search.repositories(q='#ep14boat')
 for repo in repos.items:
-    print repo.name
+    print('{}: {}'.format(repo.name, repo.url))
