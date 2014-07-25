@@ -1,11 +1,7 @@
 language: python
-env:
-  global:
-    - secure: "bW/brbIPX7Xk08kdBVweulvQCGCJHmSAu7DnzNo7RPS1EffS0yjGcn9+V7/VoM1FbpmEqxuwWtE8l5ZRoiRVy8ALdF7aXHUgS5ASZqnIU6xWWlsIyu2sVmB/7xIWuH04pslOFtKHPF3h3SOF55908LBHqf+4XedK5Lth6ob/wwA="
 python:
   - "2.7"
   - "3.3"
   - "3.4"
   - "pypy"
 script: make test
-after_success: make gh-pages

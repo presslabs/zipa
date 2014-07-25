@@ -1,6 +1,6 @@
 zipa [![Build Status](https://travis-ci.org/vtemian/zipa.svg?branch=master)](https://travis-ci.org/vtemian/zipa)
 ====
-General purpose REST API client ([docs](http://vtemian.github.io/zipa/)).
+General purpose REST API client ([docs](http://zipa.readthedocs.org/en/latest/)).
 
 ### Instalation
 ``` pip install zipa ```
