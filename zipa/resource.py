@@ -88,8 +88,10 @@ class Resource(dict):
     def __call__(self, **kwargs):
         if self.name is None:
             raise RuntimeError('Cannot call directly on root')
+
         response = requests.get(self.url, params=kwargs,
                                 auth=self.config['auth'])
+
         content = response.json()
         if isinstance(content, list):
             return [Entity(item) for item in content]

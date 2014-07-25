@@ -5,6 +5,7 @@ class Entity(dict):
                 self.update(arg)
             else:
                 raise TypeError('Argument %s is not an dict' % arg)
+
         self.update(kwargs)
 
         self.__dict__ = self
