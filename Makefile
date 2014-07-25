@@ -1,5 +1,8 @@
 BUILD_DIR:=build
 VIRTUAL_ENV?=$(BUILD_DIR)/virtualenv
+REMOTE_URL=$(shell git config remote.origin.url)
+GIT_NAME?=$(shell git config user.name)
+GIT_EMAIL?=$(shell git config user.email)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -25,7 +28,19 @@ docs: devenv $(BUILD_DIR)
 	$(VIRTUAL_ENV)/bin/mkdocs build
 	mv site $(BUILD_DIR)/site
 
+gh-pages: docs
+	cd $(BUILD_DIR)/site ;\
+		git init;\
+		git remote add origin $(REMOTE_URL);\
+		git remote set-branches --add origin gh-pages;\
+		git config user.name "$(GIT_NAME)";\
+		git config user.email "$(GIT_EMAIL)";\
+		git checkout -b gh-pages ;\
+		git add -A .;\
+		git commit -m 'Updated docs';\
+		git push -f origin gh-pages
+
 clean:
 	$(RM) -r $(BUILD_DIR)
 
-.PHONY: clean test testenv docs
+.PHONY: clean test testenv docs gh-pages
