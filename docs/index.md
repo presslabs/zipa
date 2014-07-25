@@ -3,7 +3,7 @@
 zipa ("apiz reversed") is a generic REST API client, which allows you to
 easily access REST APIs that follow conventions being used around the web.
 
-## The magic behind
+## Zipa in a shell
 
 ```
 pip install zipa
