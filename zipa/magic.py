@@ -2,7 +2,6 @@ from types import ModuleType
 
 from .resource import Resource
 
-
 class SelfWrapper(ModuleType):
     def __init__(self, self_module, baked_args={}):
         for attr in ["__builtins__", "__doc__", "__name__", "__package__"]:
@@ -30,7 +29,7 @@ class SelfWrapper(ModuleType):
     def _parse_name(self, name):
         parts = name.split('__')
         host = parts[0].replace('_', '.')
-        prefix = ''
+        prefix = '/'
         if len(parts) > 1:
-            prefix = parts[1].replace('_', '/') + '/'
+            prefix = '/' + parts[1].replace('_', '/') + '/'
         return host, prefix

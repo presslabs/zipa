@@ -17,7 +17,7 @@ class Resource(dict):
             'auth': None,
             'use_extensions': False,
             'secure': True,
-            'prefix': '',
+            'prefix': '/',
             'serializer': 'json'
         }
 
@@ -28,13 +28,23 @@ class Resource(dict):
         scheme = 'https://' if self.config.secure else 'http://'
 
         url = scheme + self.config.host + self.config.prefix
-        url += self._url.replace('_/', '/')
-        url = url.rstrip("/")
+        if not url.endswith('/'):
+            url += '/'
+        resource_url = self._url.replace('_/', '/').rstrip('/')
+        if resource_url.startswith('/'):
+            resource_url = resource_url[1:]
+        url += resource_url
 
         if self.config.use_extensions:
             url += '.json'
 
         return url
+
+    def _expand_url(self, part):
+        prefix = self._url
+        if not self._url.endswith('/'):
+            prefix += '/'
+        return '%s%s' % (prefix, part)
 
     def _prepare_data(self, **kwargs):
         if self.config.serializer == 'json':
@@ -54,19 +64,21 @@ class Resource(dict):
                                 auth=self.config['auth'])
         return Entity(response.json())
 
-    def delete(self, **kwa):
-        response = requests.delete(self.url, params=kwargs,
-                                   auth=self.config['auth'])
+    def delete(self, **kwargs):
+        requests.delete(self.url, params=kwargs,
+                        auth=self.config['auth'])
 
     def __getattr__(self, name):
         if name == 'url':
             return self._get_url()
         elif name in self.__dict__:
             return self.__dict__[name]
+
         # Handle special attributes used with ipdb/ipython tab completion.
         elif name in ['_getAttributeNames', 'trait_names']:
             return super(Resource, self).__getattribute__(name)
-        return Resource('%s/%s' % (self._url, name), name, config=self.config)
+
+        return Resource(self._expand_url(name), name, config=self.config)
 
     def __getitem__(self, name):
         if isinstance(name, dict):
