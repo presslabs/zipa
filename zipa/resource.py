@@ -18,7 +18,8 @@ class Resource(dict):
             'use_extensions': False,
             'secure': True,
             'prefix': '/',
-            'serializer': 'json'
+            'serializer': 'json',
+            'verify': True
         }
 
         config = dict_merge(_config_defaults, _config)
@@ -55,18 +56,21 @@ class Resource(dict):
     def create(self, **kwargs):
         data = self._prepare_data(**kwargs)
         response = requests.post(self.url, data=data,
-                                 auth=self.config['auth'])
+                                 auth=self.config['auth'],
+                                 verify=self.config['verify'])
         return Entity(response.json())
 
     def update(self, **kwargs):
         data = self._prepare_data(**kwargs)
         response = requests.put(self.url, data=data,
-                                auth=self.config['auth'])
+                                auth=self.config['auth'],
+                                verify=self.config['verify'])
         return Entity(response.json())
 
     def delete(self, **kwargs):
         requests.delete(self.url, params=kwargs,
-                        auth=self.config['auth'])
+                        auth=self.config['auth'],
+                        verify=self.config['verify'])
 
     def __getattr__(self, name):
         if name == 'url':
@@ -102,7 +106,8 @@ class Resource(dict):
             raise RuntimeError('Cannot call directly on root')
 
         response = requests.get(self.url, params=kwargs,
-                                auth=self.config['auth'])
+                                auth=self.config['auth'],
+                                verify=self.config['verify'])
 
         content = response.json()
         if isinstance(content, list):
@@ -118,10 +123,13 @@ class Resource(dict):
 
     def __iter__(self):
         r = requests.get(self.url, params=self.params,
-                         auth=self.config['auth'])
+                         auth=self.config['auth'],
+                         verify=self.config['verify'])
         for x in r.json():
             yield Entity(x)
         while 'next' in r.links and r.links['next']['url']:
-            r = requests.get(r.links['next']['url'], auth=self.config['auth'])
+            r = requests.get(r.links['next']['url'],
+                             auth=self.config['auth'],
+                             verify=self.config['verify'])
             for x in r.json():
                 yield Entity(x)
