@@ -19,7 +19,8 @@ class Resource(dict):
             'secure': True,
             'prefix': '/',
             'serializer': 'json',
-            'verify': True
+            'verify': True,
+            'append_slash': False
         }
 
         config = dict_merge(_config_defaults, _config)
@@ -38,6 +39,9 @@ class Resource(dict):
 
         if self.config.use_extensions:
             url += '.json'
+
+        if self.config.append_slash and not url.endswith('/'):
+            url += '/'
 
         return url
 
