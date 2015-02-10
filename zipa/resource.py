@@ -62,6 +62,7 @@ class Resource(dict):
         response = requests.put(self.url, data=data,
                                 auth=self.config['auth'],
                                 verify=self.config['verify'])
+        response.raise_for_status()
         return Entity(response.json())
 
     def update(self, **kwargs):
@@ -69,12 +70,14 @@ class Resource(dict):
         response = requests.post(self.url, data=data,
                                  auth=self.config['auth'],
                                  verify=self.config['verify'])
+        response.raise_for_status()
         return Entity(response.json())
 
     def delete(self, **kwargs):
-        requests.delete(self.url, params=kwargs,
-                        auth=self.config['auth'],
-                        verify=self.config['verify'])
+        response = requests.delete(self.url, params=kwargs,
+                                   auth=self.config['auth'],
+                                   verify=self.config['verify'])
+        response.raise_for_status()
 
     def __getattr__(self, name):
         if name == 'url':
@@ -112,6 +115,7 @@ class Resource(dict):
         response = requests.get(self.url, params=kwargs,
                                 auth=self.config['auth'],
                                 verify=self.config['verify'])
+        response.raise_for_status()
 
         content = response.json()
         if isinstance(content, list):
