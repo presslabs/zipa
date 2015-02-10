@@ -55,16 +55,16 @@ class Resource(dict):
 
     def create(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        response = requests.post(self.url, data=data,
-                                 auth=self.config['auth'],
-                                 verify=self.config['verify'])
+        response = requests.put(self.url, data=data,
+                                auth=self.config['auth'],
+                                verify=self.config['verify'])
         return Entity(response.json())
 
     def update(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        response = requests.put(self.url, data=data,
-                                auth=self.config['auth'],
-                                verify=self.config['verify'])
+        response = requests.post(self.url, data=data,
+                                 auth=self.config['auth'],
+                                 verify=self.config['verify'])
         return Entity(response.json())
 
     def delete(self, **kwargs):
