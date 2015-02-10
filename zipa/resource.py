@@ -1,6 +1,7 @@
 import json
-
 import requests
+
+from requests.exceptions import HTTPError
 
 from .entity import Entity
 from .utils import dict_merge
@@ -57,27 +58,51 @@ class Resource(dict):
         else:
             return kwargs
 
-    def create(self, **kwargs):
-        data = self._prepare_data(**kwargs)
-        response = requests.put(self.url, data=data,
-                                auth=self.config['auth'],
-                                verify=self.config['verify'])
-        response.raise_for_status()
-        return Entity(response.json())
+    def _prepare_entity(self, response):
+        try:
+            json = response.json()
+        except:
+            json = {}
 
-    def update(self, **kwargs):
+        http_error_msg = ''
+
+        if 400 <= response.status_code < 500:
+            http_error_msg = '%s Client Error: %s' % (response.status_code,
+                                                      response.reason)
+
+        elif 500 <= response.status_code < 600:
+            http_error_msg = '%s Server Error: %s' % (response.status_code,
+                                                      response.reason)
+
+        if http_error_msg:
+            raise HTTPError(http_error_msg, json, response=response)
+
+        return Entity(json)
+
+    def create(self, **kwargs):
         data = self._prepare_data(**kwargs)
         response = requests.post(self.url, data=data,
                                  auth=self.config['auth'],
                                  verify=self.config['verify'])
-        response.raise_for_status()
-        return Entity(response.json())
+
+        entity = self._prepare_entity(response)
+        return entity
+
+    def update(self, **kwargs):
+        data = self._prepare_data(**kwargs)
+        response = requests.put(self.url, data=data,
+                                auth=self.config['auth'],
+                                verify=self.config['verify'])
+
+        entity = self._prepare_entity(response)
+        return entity
 
     def delete(self, **kwargs):
         response = requests.delete(self.url, params=kwargs,
                                    auth=self.config['auth'],
                                    verify=self.config['verify'])
-        response.raise_for_status()
+        entity = response._prepare_entity(response)
+        return entity
 
     def __getattr__(self, name):
         if name == 'url':
@@ -115,13 +140,8 @@ class Resource(dict):
         response = requests.get(self.url, params=kwargs,
                                 auth=self.config['auth'],
                                 verify=self.config['verify'])
-        response.raise_for_status()
-
-        content = response.json()
-        if isinstance(content, list):
-            return [Entity(item) for item in content]
-
-        return Entity(content)
+        entity = self._prepare_entity(response)
+        return entity
 
     def __str__(self):
         return repr(self)
