@@ -81,18 +81,22 @@ class Resource(dict):
 
     def create(self, **kwargs):
         data = self._prepare_data(**kwargs)
+        headers = {'content-type': 'application/json'}
         response = requests.post(self.url, data=data,
                                  auth=self.config['auth'],
-                                 verify=self.config['verify'])
+                                 verify=self.config['verify'],
+                                 headers=headers)
 
         entity = self._prepare_entity(response)
         return entity
 
     def update(self, **kwargs):
         data = self._prepare_data(**kwargs)
+        headers = {'content-type': 'application/json'}
         response = requests.put(self.url, data=data,
                                 auth=self.config['auth'],
-                                verify=self.config['verify'])
+                                verify=self.config['verify'],
+                                headers=headers)
 
         entity = self._prepare_entity(response)
         return entity
