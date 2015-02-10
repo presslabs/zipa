@@ -125,11 +125,21 @@ class Resource(dict):
         r = requests.get(self.url, params=self.params,
                          auth=self.config['auth'],
                          verify=self.config['verify'])
-        for x in r.json():
-            yield Entity(x)
+        r.raise_for_status()
+        data = r.json()
+        if isinstance(data, dict):
+            yield Entity(data)
+        else:
+            for x in data:
+                yield Entity(x)
         while 'next' in r.links and r.links['next']['url']:
             r = requests.get(r.links['next']['url'],
                              auth=self.config['auth'],
                              verify=self.config['verify'])
-            for x in r.json():
-                yield Entity(x)
+            r.raise_for_status()
+            data = r.json()
+            if isinstance(data, dict):
+                yield Entity(data)
+            else:
+                for x in data:
+                    yield Entity(x)
