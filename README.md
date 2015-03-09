@@ -1,4 +1,4 @@
-zipa [![Build Status](https://travis-ci.org/vtemian/zipa.svg?branch=master)](https://travis-ci.org/vtemian/zipa)
+zipa [![Build Status](https://api.travis-ci.org/PressLabs/zipa.svg)](https://travis-ci.org/vtemian/zipa)
 ====
 magic pythonic REST clients ([docs](http://zipa.readthedocs.org/)).
 
