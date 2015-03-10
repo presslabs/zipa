@@ -77,6 +77,9 @@ class Resource(dict):
         if http_error_msg:
             raise HTTPError(http_error_msg, json, response=response)
 
+        if isinstance(json, list):
+            return [Entity(entity) for entity in json]
+
         return Entity(json)
 
     def create(self, **kwargs):
