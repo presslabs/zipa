@@ -1,7 +1,10 @@
 from setuptools import setup
 
+from zipa import __version__
+
+
 setup(name='zipa',
-      version='0.1.4',
+      version=__version__,
       platforms='any',
       description='General purpose REST API client',
       author='Vlad Temian & Calin Don',
