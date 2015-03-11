@@ -111,6 +111,17 @@ class Resource(dict):
         entity = response._prepare_entity(response)
         return entity
 
+    def patch(self, **kwargs):
+        data = self._prepare_data(**kwargs)
+        headers = {'content-type': 'application/json'}
+        response = requests.patch(self.url, data=data,
+                                  auth=self.config['auth'],
+                                  verify=self.config['verify'],
+                                  headers=headers)
+
+        entity = self._prepare_entity(response)
+        return entity
+
     def __getattr__(self, name):
         if name == 'url':
             return self._get_url()
