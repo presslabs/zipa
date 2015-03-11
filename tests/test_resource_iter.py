@@ -10,7 +10,6 @@ def pretty_api():
                            status=200,
                            content_type='application/json',
                            body=u'{"name": "a"}')
-
     httpretty.register_uri(httpretty.GET, 'https://api.test.com/list',
                            status=200,
                            content_type='application/json',
