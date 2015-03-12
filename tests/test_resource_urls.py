@@ -1,4 +1,4 @@
-class TestResourceUrls:
+class TestResourceUrls(object):
     def test_naked_domain(self):
         from zipa import api_test_com as t
         assert t._get_url() == 'https://api.test.com/'
@@ -22,3 +22,9 @@ class TestResourceUrls:
     def test_simple_method_with_deep_path(self):
         from zipa import test_com__api_v1 as t
         assert t.res._get_url() == 'https://test.com/api/v1/res'
+
+    def test_new_resource_url(self):
+        from zipa import test_com as t
+
+        new_url = "http://test.com/api/v1"
+        t.resource(new_url)._get_url() == new_url
