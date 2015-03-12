@@ -8,6 +8,18 @@ from .utils import dict_merge
 
 
 class Resource(dict):
+    def __resource(self, url):
+        if url == self._get_url():
+            raise RuntimeError('Cannot call directly on root')
+
+        base_url = self._get_url()
+        if not url.startswith(base_url):
+            raise RuntimeError("You can't change the base url. The new "
+                               "resource needs to have the host %s" % base_url)
+
+        return Resource(url[len(base_url):], url.split("/")[-1],
+                        config=self.config)
+
     def __init__(self, url=None, name=None, params=None, config=None):
         self._url = url or ''
         self.name = name
@@ -26,6 +38,9 @@ class Resource(dict):
 
         config = dict_merge(_config_defaults, _config)
         self.config = Entity(config)
+
+        if name is None:
+            self.resource = self.__resource
 
     def _get_url(self):
         scheme = 'https://' if self.config.secure else 'http://'
@@ -108,7 +123,7 @@ class Resource(dict):
         response = requests.delete(self.url, params=kwargs,
                                    auth=self.config['auth'],
                                    verify=self.config['verify'])
-        entity = response._prepare_entity(response)
+        entity = self._prepare_entity(response)
         return entity
 
     def patch(self, **kwargs):
