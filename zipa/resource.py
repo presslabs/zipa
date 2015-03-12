@@ -122,6 +122,14 @@ class Resource(dict):
         entity = self._prepare_entity(response)
         return entity
 
+    def resource(self, url):
+        if self._url in url:
+            raise HTTPError("You can't change the base url. The new resource "
+                            "needs to be continuation of %s" % self._url)
+
+        self._url = url
+        return self
+
     def __getattr__(self, name):
         if name == 'url':
             return self._get_url()
