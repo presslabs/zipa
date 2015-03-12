@@ -26,5 +26,5 @@ class TestResourceUrls(object):
     def test_new_resource_url(self):
         from zipa import test_com as t
 
-        new_url = "http://test.com/api/v1"
-        t.resource(new_url)._get_url() == new_url
+        new_url = "https://test.com/api/v1"
+        t.resource("%s/d" % new_url)._get_url() == "%s/d" % new_url
