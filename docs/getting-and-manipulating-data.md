@@ -27,7 +27,7 @@ This would do a `GET /orgs/django/repos?page=2`
 Creating an object is as simple as calling a [magic function](/magic/#functions).
 
 ```
-gist = gh.gists.create(description='Test gist', files={'empty.txt': {'content': 'a'}})
+gist = gh.gists.post(description='Test gist', files={'empty.txt': {'content': 'a'}})
 ```
 
 ## Deleting an object
