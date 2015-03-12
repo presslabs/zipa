@@ -1,5 +1,6 @@
 import json
 import requests
+from urlparse import urlparse
 
 from requests.exceptions import HTTPError
 
@@ -123,11 +124,12 @@ class Resource(dict):
         return entity
 
     def resource(self, url):
-        if self._url in url:
+        url = urlparse(url)
+        if self.config.host not in url.hostname:
             raise HTTPError("You can't change the base url. The new resource "
-                            "needs to be continuation of %s" % self._url)
+                            "needs to have the host %s" % self.config.host)
 
-        self._url = url
+        self.config.prefix = url.path
         return self
 
     def __getattr__(self, name):
