@@ -83,7 +83,7 @@ class Resource(dict):
 
         return Entity(json)
 
-    def create(self, **kwargs):
+    def post(self, **kwargs):
         data = self._prepare_data(**kwargs)
         headers = {'content-type': 'application/json'}
         response = requests.post(self.url, data=data,
@@ -94,7 +94,7 @@ class Resource(dict):
         entity = self._prepare_entity(response)
         return entity
 
-    def update(self, **kwargs):
+    def put(self, **kwargs):
         data = self._prepare_data(**kwargs)
         headers = {'content-type': 'application/json'}
         response = requests.put(self.url, data=data,
