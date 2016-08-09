@@ -4,8 +4,8 @@ from .magic import SelfWrapper
 
 
 def register_module(name):
-    self = sys.modules['zipa']
-    sys.modules[name] = SelfWrapper(self)
+    zipa = sys.modules['zipa']
+    sys.modules[name] = SelfWrapper(zipa)
 
 
 class ModuleImporter(object):
