@@ -15,7 +15,7 @@ gh.orgs['django'].repos['django']   # /orgs/django/repos/django
 The following statements do not make a remote call
 ```
 repos = gh.orgs['django'].repos
-print gh.orgs.django
+print(gh.orgs.django)
 ```
 While these ones do:
 ```
@@ -24,12 +24,12 @@ repos = gh.orgs['django'].repos
 repos()
 
 # This calls GET /orgs/django
-print gh.orgs.django()
+print(gh.orgs.django())
 
 # This one calls GET /orgs/django/repos and subsequently calls the next url
 # from the Link header
 for repo in gh.orgs.django.repos:
-    print repo.name
+    print(repo.name)
 ```
 
 #### Filtering
@@ -38,5 +38,5 @@ You can add filters to iterators by using the slice notation like this:
 ```
 # This one calls GET /orgs/django/repos?sort=created&direction=desc
 for repo in gh.orgs.django.repos[{'sort': 'created', 'direction': 'desc'}]:
-    print repo.name
+    print(repo.name)
 ```

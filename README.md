@@ -10,7 +10,7 @@ magic pythonic REST clients ([docs](http://zipa.readthedocs.org/)).
 ```
 >>> from zipa import api_github_com as gh
 >>> for repo in gh.users['tpope'].repos:
-...     print repo.name
+...     print(repo.name)
 
 ```
 
