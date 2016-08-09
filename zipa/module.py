@@ -10,10 +10,10 @@ def register_module(name):
 
 class ModuleImporter(object):
     def __init__(self, module_name):
-        self.name = module_name
+        self.module = module_name + '.'
 
     def find_module(self, name, path=None):
-        if name.startswith('{}.'.format(self.name)):
+        if name.startswith(self.module):
             return self
         return None
 
