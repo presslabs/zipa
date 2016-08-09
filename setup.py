@@ -2,15 +2,17 @@ from setuptools import setup
 
 
 setup(name='zipa',
-      version="0.2.0",
+      version="0.3.0",
       platforms='any',
       description='General purpose REST API client',
-      author='Vlad Temian & Calin Don',
-      author_email='vladtemian@gmail.com',
-      url='https://github.com/vtemian/zipa',
+      author='Presslabs SRL',
+      author_email='support@presslabs.com',
+      url='https://github.com/Presslabs/zip[a',
       packages=['zipa'],
       include_package_data=True,
       install_requires=['requests'],
       classifiers=[
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
       ])
