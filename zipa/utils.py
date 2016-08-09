@@ -14,7 +14,7 @@ def dict_merge(first, second):
         return second
 
     result = deepcopy(first)
-    for key, value in second.iteritems():
+    for key, value in second.items():
         if key in result and isinstance(result[key], dict):
                 result[key] = dict_merge(result[key], value)
         else:

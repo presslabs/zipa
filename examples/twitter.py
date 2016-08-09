@@ -17,4 +17,4 @@ tw.config.auth = OAuth1(TWITTER_APP_KEY, client_secret=TWITTER_APP_SECRET,
 
 tweet = tw.statuses.update_.post(status='API call to twitter using '
                                  'https://github.com/vtemian/zipa #ep14')
-print tweet.id
+print(tweet.id)

@@ -5,4 +5,4 @@ from zipa import api_github_com as github
 repos = github.orgs.django.repos
 
 for repo in repos[{'sort': 'created', 'direction': 'desc'}]:
-    print repo.name
+    print(repo.name)
