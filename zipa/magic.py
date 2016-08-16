@@ -28,6 +28,7 @@ class SelfWrapper(ModuleType):
         return self.env[name]
 
     def _parse_name(self, name):
+        name = name.replace('___', '-')
         parts = name.split('__')
         host = parts[0].replace('_', '.')
         prefix = '/'
