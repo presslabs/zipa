@@ -33,7 +33,8 @@ class Resource(dict):
             'prefix': '/',
             'serializer': 'json',
             'verify': True,
-            'append_slash': False
+            'append_slash': False,
+            'headers': {}
         }
 
         config = dict_merge(_config_defaults, _config)
@@ -99,7 +100,8 @@ class Resource(dict):
 
     def post(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        headers = {'content-type': 'application/json'}
+        headers = dict_merge({'content-type': 'application/json'},
+                             self.config['headers'])
         response = requests.post(self.url, data=data,
                                  auth=self.config['auth'],
                                  verify=self.config['verify'],
@@ -110,7 +112,8 @@ class Resource(dict):
 
     def put(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        headers = {'content-type': 'application/json'}
+        headers = dict_merge({'content-type': 'application/json'},
+                             self.config['headers'])
         response = requests.put(self.url, data=data,
                                 auth=self.config['auth'],
                                 verify=self.config['verify'],
@@ -128,7 +131,8 @@ class Resource(dict):
 
     def patch(self, **kwargs):
         data = self._prepare_data(**kwargs)
-        headers = {'content-type': 'application/json'}
+        headers = dict_merge({'content-type': 'application/json'},
+                             self.config['headers'])
         response = requests.patch(self.url, data=data,
                                   auth=self.config['auth'],
                                   verify=self.config['verify'],
@@ -172,6 +176,7 @@ class Resource(dict):
 
         response = requests.get(self.url, params=kwargs,
                                 auth=self.config['auth'],
+                                headers=self.config['headers'],
                                 verify=self.config['verify'])
         entity = self._prepare_entity(response)
         return entity
