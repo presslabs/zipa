@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='zipa',
-      version="0.3.0",
+      version="0.3.1",
       platforms='any',
       description='General purpose REST API client',
       author='Presslabs SRL',
