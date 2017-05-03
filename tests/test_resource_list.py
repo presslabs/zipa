@@ -3,7 +3,7 @@ from zipa import api_test_com as t
 
 
 def pretty_api():
-    httpretty.register_uri(httpretty.GET, 'https://api.test.com/item',
+    httpretty.register_uri(httpretty.GET, 'http://api.test.com/item',
                            status=200,
                            content_type='application/json',
                            body=u'[{"name": "a"}]')
