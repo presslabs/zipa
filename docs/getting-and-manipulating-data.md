@@ -22,6 +22,23 @@ gh.orgs.django.repos(page=2)
 
 This would do a `GET /orgs/django/repos?page=2`
 
+## Using custom headers
+
+Passing custom headers for each request can be done by adding to the `config`
+object, an `headers` dict.
+
+```
+from zipa import api_awesomeapi_com as aw
+
+aw.config.headers = {
+    'user': 'test-user',
+    'api-key': 'n131390cxs09f0-w42k34ha'
+}
+
+aw.get_all_entites()
+aw.entities.post(**{'property': 'value'})
+```
+
 ## Creating an object
 
 Creating an object is as simple as calling a [magic function](/magic/#functions).
