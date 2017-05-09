@@ -4,14 +4,17 @@ import pytest
 from requests import HTTPError
 
 
-@httpretty.activate
-def test_default_response_handler_client_error():
+@pytest.mark.httpretty()
+@pytest.mark.parametrize('response_text, status_code, exception_str', [
+    (u'{"detail": "Invalid input."}', 400, 'Errno 400 Client Error: Bad Request'),
+    (u'{"detail": "I crashed."}', 500, 'Errno 500 Server Error: Internal Server Error')
+])
+def test_default_response_handler_error(response_text, status_code, exception_str):
     from zipa import api_test_com as api
     api.config.secure = False
 
-    response_text = u'{"detail": "Invalid input."}'
     httpretty.register_uri(httpretty.GET, 'http://api.test.com/item',
-                           status=400,
+                           status=status_code,
                            content_type='application/json',
                            body=response_text)
 
@@ -19,32 +22,12 @@ def test_default_response_handler_client_error():
         api.item()
 
     http_error = exception_info.value
-    assert 'Errno 400 Client Error: Bad Request' in str(http_error)
-    assert http_error.response.status_code == 400
+    assert exception_str in str(http_error)
+    assert http_error.response.status_code == status_code
     assert http_error.response.text == response_text
 
 
-@httpretty.activate
-def test_default_response_handler_server_error():
-    from zipa import api_test_com as api
-    api.config.secure = False
-
-    response_text = u'{"detail": "I crashed."}'
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/item',
-                           status=500,
-                           content_type='application/json',
-                           body=response_text)
-
-    with pytest.raises(HTTPError) as exception_info:
-        api.item()
-
-    http_error = exception_info.value
-    assert 'Errno 500 Server Error: Internal Server Error' in str(http_error)
-    assert http_error.response.status_code == 500
-    assert http_error.response.text == response_text
-
-
-@httpretty.activate
+@pytest.mark.httpretty()
 def test_custom_response_handler_throw_exception():
     from zipa import api_test_com as api
 
