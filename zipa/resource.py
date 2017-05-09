@@ -34,7 +34,8 @@ class Resource(dict):
             'serializer': 'json',
             'verify': True,
             'append_slash': False,
-            'headers': {}
+            'headers': {},
+            'response_handler': None
         }
 
         config = dict_merge(_config_defaults, _config)
@@ -74,29 +75,36 @@ class Resource(dict):
         else:
             return kwargs
 
-    def _prepare_entity(self, response):
+    @staticmethod
+    def default_response_handler(response):
         try:
-            json = response.json()
-        except:
-            json = {}
-
-        http_error_msg = ''
+            parsed_response = response.json()
+        except ValueError:
+            parsed_response = {}
 
         if 400 <= response.status_code < 500:
             http_error_msg = '%s Client Error: %s' % (response.status_code,
                                                       response.reason)
-
         elif 500 <= response.status_code < 600:
             http_error_msg = '%s Server Error: %s' % (response.status_code,
                                                       response.reason)
+        else:
+            http_error_msg = None
 
         if http_error_msg:
-            raise HTTPError(http_error_msg, json, response=response)
+            raise HTTPError(http_error_msg, parsed_response, response=response)
 
-        if isinstance(json, list):
-            return [Entity(entity) for entity in json]
+        return parsed_response
 
-        return Entity(json)
+    def _prepare_entity(self, response):
+        response_handler = self.config.response_handler or self.default_response_handler
+
+        parsed_response = response_handler(response) or {}
+
+        if isinstance(parsed_response, list):
+            return [Entity(entity) for entity in parsed_response]
+
+        return Entity(parsed_response)
 
     def post(self, **kwargs):
         data = self._prepare_data(**kwargs)
