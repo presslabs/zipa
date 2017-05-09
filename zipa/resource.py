@@ -35,7 +35,7 @@ class Resource(dict):
             'verify': True,
             'append_slash': False,
             'headers': {},
-            'response_handler': None
+            'response_handler': self.default_response_handler
         }
 
         config = dict_merge(_config_defaults, _config)
@@ -97,7 +97,7 @@ class Resource(dict):
         return parsed_response
 
     def _prepare_entity(self, response):
-        response_handler = self.config.response_handler or self.default_response_handler
+        response_handler = self.config.response_handler or (lambda r: r)
 
         parsed_response = response_handler(response) or {}
 
