@@ -39,6 +39,31 @@ aw.get_all_entites()
 aw.entities.post(**{'property': 'value'})
 ```
 
+## Using a custom response handler
+
+By default, zipa will raise `HTTPError` for responses with status_code
+between 400 and 599 included.
+
+```
+from zipa import api_awesomeapi_com as aw
+
+def response_handler(response):
+    if response.status_code >= 400:
+        if response.status_code == 400:
+            raise BadRequest
+        elif response.status_code == 404:
+            return default_value
+        else:
+            raise SomeException
+
+    try:
+        return response.json()
+    except ValueError:
+        raise BadResponse
+
+aw.config.response_handler = response_handler
+```
+
 ## Creating an object
 
 Creating an object is as simple as calling a [magic function](/magic/#functions).
