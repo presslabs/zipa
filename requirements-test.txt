@@ -2,4 +2,3 @@
 mock
 pytest
 pytest-httpretty
-HTTPretty

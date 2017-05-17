@@ -131,9 +131,12 @@ class Resource(dict):
         return entity
 
     def delete(self, **kwargs):
+        headers = dict_merge({'content-type': 'application/json'},
+                             self.config['headers'])
         response = requests.delete(self.url, params=kwargs,
                                    auth=self.config['auth'],
-                                   verify=self.config['verify'])
+                                   verify=self.config['verify'],
+                                   headers=headers)
         entity = self._prepare_entity(response)
         return entity
 

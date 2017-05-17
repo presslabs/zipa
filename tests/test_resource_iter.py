@@ -1,78 +1,36 @@
-import httpretty
 import pytest
-
+import httpretty
 from requests.exceptions import HTTPError
+
+from .fixtures import pretty_api
 from zipa import api_test_com as t
 
 
-def pretty_api():
-    httpretty.enable()
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/item/a',
-                           status=200,
-                           content_type='application/json',
-                           body=u'{"name": "a"}')
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/list',
-                           status=200,
-                           content_type='application/json',
-                           body=u'[{"item1": "name1"},{"item2": "name2"}]',
-                           adding_headers={
-                               'Link': '<http://api.test.com/list/2>; '
-                                       'rel="next"',
-                           })
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/list/2',
-                           status=200,
-                           content_type='application/json',
-                           body=u'[{"item3": "name3"},{"item4": "name4"}]',
-                           adding_headers={
-                               'Link': '<http://api.test.com/list/3>; '
-                                       'rel="next"',
-                           })
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/list/3',
-                           status=200,
-                           content_type='application/json',
-                           body=u'[{"item5": "name5"}]')
+@pytest.mark.httpretty
+def test_iter_returns_single_object(pretty_api):
+    t.config.secure = False
 
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/list/first',
-                           status=200,
-                           content_type='application/json',
-                           body=u'[{"item1": "name1"},{"item2": "name2"}]',
-                           adding_headers={
-                               'Link': '<http://api.test.com/list/error>; '
-                                       'rel="next"',
-                           })
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/list/error',
-                           status=400,
-                           content_type='application/json',
-                           body=u'{"detail":"error"}')
+    for item in t.item['a']:
+        assert item.name == 'a'
 
 
-class TestResourceIter:
+@pytest.mark.httpretty
+def test_iter_completes(pretty_api):
+    items = []
+    t.config.secure = False
 
-    @httpretty.activate
-    def test_iter_returns_single_object(self):
-        pretty_api()
-        t.config.secure = False
+    for i in t.list:
+        items.append(i)
+    assert items == [{u'item1': u'name1'}, {u'item2': u'name2'},
+                     {u'item3': u'name3'}, {u'item4': u'name4'},
+                     {u'item5': u'name5'}]
 
-        for i in t.item['a']:
-            assert i.name == 'a'
 
-    @httpretty.activate
-    def test_iter_completes(self):
-        pretty_api()
-        items = []
-        t.config.secure = False
+@pytest.mark.httpretty
+def test_iter_next_link_is_error(pretty_api):
+    items = []
+    t.config.secure = False
 
-        for i in t.list:
-            items.append(i)
-        assert items == [{u'item1': u'name1'}, {u'item2': u'name2'},
-                         {u'item3': u'name3'}, {u'item4': u'name4'},
-                         {u'item5': u'name5'}]
-
-    @httpretty.activate
-    def test_iter_next_link_is_error(self):
-        pretty_api()
-        t.config.secure = False
-        items = []
-        with pytest.raises(HTTPError):
-            for i in t.list.first:
-                items.append(i)
+    with pytest.raises(HTTPError):
+        for item in t.list.first:
+            items.append(item)
