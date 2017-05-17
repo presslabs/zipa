@@ -3,3 +3,4 @@ mock
 pytest
 pytest-httpretty
 HTTPretty
+pytest-httpretty==0.2.0
