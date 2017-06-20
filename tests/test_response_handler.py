@@ -1,7 +1,37 @@
+import json
+
 import httpretty
 import pytest
 
 from requests import HTTPError
+
+
+@pytest.mark.httpretty()
+@pytest.mark.parametrize('expected_response, status_code', [
+    ({
+        'customer': {
+            'age': 55,
+            'interests': ['photography', 'football'],
+            'meta': {
+                'A': '1234',
+                'B': '4321',
+            }
+        }
+    }, 200),
+    ([{'a': 'b'}, {'c': 'd'}], 200),
+    ({}, 200),
+    ([], 200)
+])
+def test_default_response_handler_return_value(expected_response, status_code):
+    from zipa import api_test_com as api
+    api.config.secure = False
+
+    httpretty.register_uri(httpretty.GET, 'http://api.test.com/item',
+                           status=status_code,
+                           content_type='application/json',
+                           body=json.dumps(expected_response))
+
+    assert api.item() == expected_response
 
 
 @pytest.mark.httpretty()
@@ -51,7 +81,7 @@ def test_custom_response_handler_throw_exception():
 
 @pytest.mark.httpretty()
 @pytest.mark.parametrize('return_value, expected_value', [
-    (None, {}),
+    (None, None),
     ({'default': [1, 2, 3]}, {'default': [1, 2, 3]}),
 ])
 def test_custom_response_handler_return_value(return_value, expected_value):

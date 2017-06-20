@@ -99,7 +99,9 @@ class Resource(dict):
     def _prepare_entity(self, response):
         response_handler = self.config.response_handler or (lambda r: r)
 
-        parsed_response = response_handler(response) or {}
+        parsed_response = response_handler(response)
+        if parsed_response is None:
+            return None
 
         if isinstance(parsed_response, list):
             return [Entity(entity) for entity in parsed_response]
