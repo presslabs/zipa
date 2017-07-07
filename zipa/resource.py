@@ -1,6 +1,7 @@
 import json
-import requests
+import time
 
+import requests
 from requests.exceptions import HTTPError
 
 from .entity import Entity
@@ -19,6 +20,20 @@ class Resource(dict):
 
         return Resource(url[len(base_url):], url.split("/")[-1],
                         config=self.config)
+
+    def _retry(request):
+        def request_method(self, *args, **kwargs):
+            retry_count = 0
+            response = request(self, *args, **kwargs)
+
+            while response.status_code == 429 and retry_count < self.config.retry_count:
+                time.sleep(retry_count * self.config.retry_timeout)
+                retry_count += 1
+                response = request(self, *args, **kwargs)
+
+            return response
+
+        return request_method
 
     def __init__(self, url=None, name=None, params=None, config=None):
         self._url = url or ''
@@ -110,32 +125,38 @@ class Resource(dict):
 
         return Entity(parsed_response)
 
+    @_retry
     def _make_request(self, method_name, **kwargs):
-        if method_name.lower() not in ['post', 'put', 'delete', 'patch']:
+        if method_name.lower() not in ['post', 'put', 'delete', 'patch', 'get']:
             raise ValueError('Method needs to be one of: post, put, delete or patch')
 
-        data = self._prepare_data(**kwargs)
         headers = dict_merge({'content-type': 'application/json'},
                              self.config['headers'])
         http_method = getattr(requests, method_name)
 
-        response = http_method(self.url, data=data,
+        if method_name.lower() == 'get':
+            return http_method(self.url, params=kwargs,
                                auth=self.config['auth'],
                                verify=self.config['verify'],
                                headers=headers)
-        return self._prepare_entity(response)
+        else:
+            data = self._prepare_data(**kwargs)
+            return http_method(self.url, data=data,
+                               auth=self.config['auth'],
+                               verify=self.config['verify'],
+                               headers=headers)
 
     def post(self, **kwargs):
-        return self._make_request('post', **kwargs)
+        return self._prepare_entity(self._make_request('post', **kwargs))
 
     def put(self, **kwargs):
-        return self._make_request('put', **kwargs)
+        return self._prepare_entity(self._make_request('put', **kwargs))
 
     def delete(self, **kwargs):
-        return self._make_request('delete', **kwargs)
+        return self._prepare_entity(self._make_request('delete', **kwargs))
 
     def patch(self, **kwargs):
-        return self._make_request('patch', **kwargs)
+        return self._prepare_entity(self._make_request('patch', **kwargs))
 
     def __getattr__(self, name):
         if name == 'url':
@@ -169,13 +190,7 @@ class Resource(dict):
     def __call__(self, **kwargs):
         if self.name is None:
             raise RuntimeError('Cannot call directly on root')
-
-        response = requests.get(self.url, params=kwargs,
-                                auth=self.config['auth'],
-                                headers=self.config['headers'],
-                                verify=self.config['verify'])
-        entity = self._prepare_entity(response)
-        return entity
+        return self._prepare_entity(self._make_request('get', **kwargs))
 
     def __str__(self):
         return repr(self)
