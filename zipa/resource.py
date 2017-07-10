@@ -1,6 +1,6 @@
 import json
 import time
-from random import randint
+import random
 
 import requests
 from requests.exceptions import HTTPError
@@ -24,15 +24,15 @@ class Resource(dict):
 
     def _retry(request):
         def request_method(self, *args, **kwargs):
-            retry_count = 0
+            attempt = 0
             response = request(self, *args, **kwargs)
 
-            while response.status_code == 429 and retry_count < self.config.retry_count:
-                # add a little bit of randomness in the retrying process
-                retry_delta = self.config.retry_timeout * (randint(0, 20) / 100)
-                time.sleep(retry_count * (self.config.retry_timeout - retry_delta))
+            while response.status_code == 429 and attempt < self.config.backoff_max_attempts:
+                sleep = random.uniform(0, min(self.config.backoff_cap,
+                                              self.config.backoff_base * 2 ** attempt))
+                time.sleep(sleep)
 
-                retry_count += 1
+                attempt += 1
 
                 response = request(self, *args, **kwargs)
 
@@ -55,8 +55,9 @@ class Resource(dict):
             'verify': True,
             'append_slash': False,
             'headers': {},
-            'retry_count': 0,
-            'retry_timeout': 0.2,
+            'backoff_cap': 1000,
+            'backoff_base': 0.1,
+            'backoff_max_attempts': 0,
             'response_handler': self.default_response_handler
         }
 
