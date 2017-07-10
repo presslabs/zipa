@@ -55,7 +55,7 @@ class Resource(dict):
             'verify': True,
             'append_slash': False,
             'headers': {},
-            'backoff_cap': 1000,
+            'backoff_cap': 10,
             'backoff_base': 0.1,
             'backoff_max_attempts': 0,
             'response_handler': self.default_response_handler
