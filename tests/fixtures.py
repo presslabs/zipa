@@ -72,5 +72,5 @@ def pretty_api():
                            content_type='application/json',
                            body=u'{"name": "a"}')
 
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/retry',
+    httpretty.register_uri(httpretty.GET, 'http://api.test.retry/retry',
                            status=429, content_type='application/json')
