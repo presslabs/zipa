@@ -4,7 +4,6 @@ import httpretty
 
 @pytest.fixture
 def pretty_api():
-
     httpretty.register_uri(httpretty.GET, 'http://api.test.com/item/a',
                            status=200,
                            content_type='application/json',
@@ -72,3 +71,6 @@ def pretty_api():
                            status=200,
                            content_type='application/json',
                            body=u'{"name": "a"}')
+
+    httpretty.register_uri(httpretty.GET, 'http://api.test.retry/retry',
+                           status=429, content_type='application/json')

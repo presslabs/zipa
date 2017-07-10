@@ -1,6 +1,8 @@
 import json
-import requests
+import time
+import random
 
+import requests
 from requests.exceptions import HTTPError
 
 from .entity import Entity
@@ -20,6 +22,24 @@ class Resource(dict):
         return Resource(url[len(base_url):], url.split("/")[-1],
                         config=self.config)
 
+    def _retry(request):
+        def request_method(self, *args, **kwargs):
+            attempt = 0
+            response = request(self, *args, **kwargs)
+
+            while response.status_code == 429 and attempt < self.config.backoff_max_attempts:
+                sleep = random.uniform(0, min(self.config.backoff_cap,
+                                              self.config.backoff_base * 2 ** attempt))
+                time.sleep(sleep)
+
+                attempt += 1
+
+                response = request(self, *args, **kwargs)
+
+            return response
+
+        return request_method
+
     def __init__(self, url=None, name=None, params=None, config=None):
         self._url = url or ''
         self.name = name
@@ -35,6 +55,9 @@ class Resource(dict):
             'verify': True,
             'append_slash': False,
             'headers': {},
+            'backoff_cap': 10,
+            'backoff_base': 0.1,
+            'backoff_max_attempts': 0,
             'response_handler': self.default_response_handler
         }
 
@@ -108,51 +131,38 @@ class Resource(dict):
 
         return Entity(parsed_response)
 
-    def post(self, **kwargs):
-        data = self._prepare_data(**kwargs)
+    @_retry
+    def _make_request(self, method_name, **kwargs):
+        if method_name.lower() not in ['post', 'put', 'delete', 'patch', 'get']:
+            raise ValueError('Method needs to be one of: post, put, delete or patch')
+
         headers = dict_merge({'content-type': 'application/json'},
                              self.config['headers'])
-        response = requests.post(self.url, data=data,
-                                 auth=self.config['auth'],
-                                 verify=self.config['verify'],
-                                 headers=headers)
+        http_method = getattr(requests, method_name)
 
-        entity = self._prepare_entity(response)
-        return entity
+        if method_name.lower() == 'get':
+            return http_method(self.url, params=kwargs,
+                               auth=self.config['auth'],
+                               verify=self.config['verify'],
+                               headers=headers)
+        else:
+            data = self._prepare_data(**kwargs)
+            return http_method(self.url, data=data,
+                               auth=self.config['auth'],
+                               verify=self.config['verify'],
+                               headers=headers)
+
+    def post(self, **kwargs):
+        return self._prepare_entity(self._make_request('post', **kwargs))
 
     def put(self, **kwargs):
-        data = self._prepare_data(**kwargs)
-        headers = dict_merge({'content-type': 'application/json'},
-                             self.config['headers'])
-        response = requests.put(self.url, data=data,
-                                auth=self.config['auth'],
-                                verify=self.config['verify'],
-                                headers=headers)
-
-        entity = self._prepare_entity(response)
-        return entity
+        return self._prepare_entity(self._make_request('put', **kwargs))
 
     def delete(self, **kwargs):
-        headers = dict_merge({'content-type': 'application/json'},
-                             self.config['headers'])
-        response = requests.delete(self.url, params=kwargs,
-                                   auth=self.config['auth'],
-                                   verify=self.config['verify'],
-                                   headers=headers)
-        entity = self._prepare_entity(response)
-        return entity
+        return self._prepare_entity(self._make_request('delete', **kwargs))
 
     def patch(self, **kwargs):
-        data = self._prepare_data(**kwargs)
-        headers = dict_merge({'content-type': 'application/json'},
-                             self.config['headers'])
-        response = requests.patch(self.url, data=data,
-                                  auth=self.config['auth'],
-                                  verify=self.config['verify'],
-                                  headers=headers)
-
-        entity = self._prepare_entity(response)
-        return entity
+        return self._prepare_entity(self._make_request('patch', **kwargs))
 
     def __getattr__(self, name):
         if name == 'url':
@@ -186,13 +196,7 @@ class Resource(dict):
     def __call__(self, **kwargs):
         if self.name is None:
             raise RuntimeError('Cannot call directly on root')
-
-        response = requests.get(self.url, params=kwargs,
-                                auth=self.config['auth'],
-                                headers=self.config['headers'],
-                                verify=self.config['verify'])
-        entity = self._prepare_entity(response)
-        return entity
+        return self._prepare_entity(self._make_request('get', **kwargs))
 
     def __str__(self):
         return repr(self)
