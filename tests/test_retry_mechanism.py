@@ -11,19 +11,6 @@ from .fixtures import pretty_api
 
 
 @pytest.mark.httpretty
-def test_retry_mechanism(pretty_api):
-    start = time.time()
-
-    t.config.secure = False
-    t.config.backoff_max_attempts = 5
-
-    with pytest.raises(HTTPError):
-        t.retry()
-
-    assert 0.5 < time.time() - start < 3
-
-
-@pytest.mark.httpretty
 def test_retry_mechanism_no_sleep(pretty_api, monkeypatch):
     mocked_sleep = MagicMock()
     mocked_random = MagicMock(return_value=1)
