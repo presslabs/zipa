@@ -168,6 +168,10 @@ class Resource(dict):
     def patch(self, **kwargs):
         return self._prepare_entity(self._make_request('patch', **kwargs))
 
+    @property
+    def keys(self):
+        return self.__getattr__('keys')
+
     def __getattr__(self, name):
         if name == 'url':
             return self._get_url()
