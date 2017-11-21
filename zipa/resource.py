@@ -136,21 +136,25 @@ class Resource(dict):
         if method_name.lower() not in ['post', 'put', 'delete', 'patch', 'get']:
             raise ValueError('Method needs to be one of: post, put, delete or patch')
 
-        headers = dict_merge({'content-type': 'application/json'},
+        headers = dict_merge({'Content-Type': 'application/json'},
                              self.config['headers'])
         http_method = getattr(requests, method_name)
 
+        request_parameters = {
+            'url': self.url,
+            'verify': self.config['verify'],
+            'headers': headers,
+        }
+
+        if self.config['auth']:
+            request_parameters['auth'] = self.config['auth']
+
         if method_name.lower() == 'get':
-            return http_method(self.url, params=kwargs,
-                               auth=self.config['auth'],
-                               verify=self.config['verify'],
-                               headers=headers)
+            request_parameters['params'] = kwargs
         else:
-            data = self._prepare_data(**kwargs)
-            return http_method(self.url, data=data,
-                               auth=self.config['auth'],
-                               verify=self.config['verify'],
-                               headers=headers)
+            request_parameters['data'] = self._prepare_data(**kwargs)
+
+        return http_method(**request_parameters)
 
     def post(self, **kwargs):
         return self._prepare_entity(self._make_request('post', **kwargs))
@@ -205,9 +209,14 @@ class Resource(dict):
         return '<Resource: %s>' % self.url
 
     def __iter__(self):
-        r = requests.get(self.url, params=self.params,
-                         auth=self.config['auth'],
-                         verify=self.config['verify'])
+        if self.config['auth']:
+            r = requests.get(self.url, params=self.params,
+                             auth=self.config['auth'],
+                             verify=self.config['verify'])
+        else:
+            r = requests.get(self.url, params=self.params,
+                             verify=self.config['verify'])
+
         r.raise_for_status()
         data = r.json()
         if isinstance(data, dict):
@@ -216,9 +225,14 @@ class Resource(dict):
             for x in data:
                 yield Entity(x)
         while 'next' in r.links and r.links['next']['url']:
-            r = requests.get(r.links['next']['url'],
-                             auth=self.config['auth'],
-                             verify=self.config['verify'])
+            if self.config['auth']:
+                r = requests.get(r.links['next']['url'],
+                                 auth=self.config['auth'],
+                                 verify=self.config['verify'])
+            else:
+                r = requests.get(r.links['next']['url'],
+                                 verify=self.config['verify'])
+
             r.raise_for_status()
             data = r.json()
             if isinstance(data, dict):
