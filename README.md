@@ -1,6 +1,14 @@
 zipa [![Build Status](https://api.travis-ci.org/PressLabs/zipa.svg)](https://travis-ci.org/PressLabs/zipa)
 ====
-magic pythonic REST clients ([docs](http://zipa.readthedocs.org/)).
+
+# Welcome to zipa
+
+zipa is a magic pythonic REST client. For more information read the [docs](http://zipa.readthedocs.org/).
+
+zipa was developed by the awesome engineering team at [Presslabs](https://www.presslabs.com/), 
+a Managed WordPress Hosting provider.
+
+For more open-source projects, check [Presslabs Code](https://www.presslabs.org/). 
 
 ### Instalation
 ``` pip install zipa ```
