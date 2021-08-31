@@ -222,12 +222,14 @@ class Resource(dict):
                              verify=self.config['verify'])
 
         r.raise_for_status()
+
         data = r.json()
         if isinstance(data, dict):
             yield Entity(data)
         else:
             for x in data:
                 yield Entity(x)
+
         while 'next' in r.links and r.links['next']['url']:
             if self.config['auth']:
                 r = requests.get(r.links['next']['url'],

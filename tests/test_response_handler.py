@@ -59,16 +59,18 @@ def test_default_response_handler_error(response_text, status_code, exception_st
 
 @pytest.mark.httpretty()
 def test_custom_response_handler_throw_exception():
-    from zipa import api_test_com as api
+    from zipa import api_testing_com as api
 
     def response_handler(response):
         if response.status_code == 500:
             raise ValueError('Not good')
 
     api.config.secure = False
+    # NOTE: make sure to use different domains in order to prevent overwriting
+    # response handler for other tests too.
     api.config.response_handler = response_handler
 
-    httpretty.register_uri(httpretty.GET, 'http://api.test.com/item',
+    httpretty.register_uri(httpretty.GET, 'http://api.testing.com/item',
                            status=500,
                            content_type='application/json',
                            body="hi")
@@ -100,3 +102,21 @@ def test_custom_response_handler_return_value(return_value, expected_value):
                            body="hi")
 
     assert api.item() == expected_value
+
+
+def test_bad_json_response():
+    from zipa import api_test_com as api
+    api.config.secure = False
+
+    httpretty.register_uri(httpretty.GET, 'http://api.test.com/bad_item',
+                           status=200,
+                           content_type='application/json',
+                           body='{"bad json:" every where ')
+
+    response = api.bad_item()
+    # error masked by response handler.
+    assert response == {}
+
+    with pytest.raises(json.JSONDecodeError):
+        list(api.bad_item[{"filter": "1"}])
+
